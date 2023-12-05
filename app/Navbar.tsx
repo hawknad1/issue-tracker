@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { AiFillBug } from "react-icons/ai";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -13,7 +14,9 @@ const Navbar = () => {
   ];
   return (
     <nav className="flex space-x-6 border-b mb-5 px-5 h-14 items-center">
-      <Link href="/">Logo</Link>
+      <Link href="/">
+        <AiFillBug />
+      </Link>
       {navLinks.map((link) => (
         <Link
           key={link.href}
