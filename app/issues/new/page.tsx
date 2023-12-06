@@ -13,43 +13,47 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import axios from "axios";
+
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
+  title: z.string().min(1),
+  description: z.string().min(1),
 });
 
 const NewIssuePage = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
-  });
+  const router = useRouter();
+  const form = useForm<z.infer<typeof formSchema>>();
+
   return (
     <div className="max-w-xl">
       <Form {...form}>
-        <form onSubmit={() => {}} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(async (data) => {
+            await axios.post("/api/issues", data);
+            router.push("/issues");
+          })}
+          className="space-y-8"
+        >
           <FormField
             control={form.control}
-            name="username"
+            name="description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Title" {...field} />
+                  <Input placeholder="Title" {...form.register("title")} />
                 </FormControl>
                 <FormControl>
                   <Textarea
-                    placeholder="Write an issue"
+                    placeholder="Description"
                     className="resize-none"
                     {...field}
                   />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
