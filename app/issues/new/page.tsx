@@ -18,23 +18,28 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import axios from "axios";
-
-const formSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-});
+import { useState } from "react";
+import { formSchema } from "@/app/formSchema";
 
 const NewIssuePage = () => {
+  const [error, setError] = useState("");
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  });
 
   return (
     <div className="max-w-xl">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(async (data) => {
-            await axios.post("/api/issues", data);
-            router.push("/issues");
+            try {
+              await axios.post("/api/issues", data);
+              router.push("/issues");
+            } catch (error) {
+              console.log(error);
+              setError("An Unexpected Error occurred.");
+            }
           })}
           className="space-y-8"
         >
@@ -47,6 +52,9 @@ const NewIssuePage = () => {
                 <FormControl>
                   <Input placeholder="Title" {...form.register("title")} />
                 </FormControl>
+                <FormMessage>
+                  {form.formState.errors.title?.message}
+                </FormMessage>
                 <FormControl>
                   <Textarea
                     placeholder="Description"
@@ -54,7 +62,9 @@ const NewIssuePage = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>
+                  {form.formState.errors.description?.message}
+                </FormMessage>
               </FormItem>
             )}
           />
