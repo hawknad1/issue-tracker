@@ -20,41 +20,49 @@ import * as z from "zod";
 import axios from "axios";
 import { useState } from "react";
 import { formSchema } from "@/app/formSchema";
+import Spinner from "@/components/Spinner";
 
 const NewIssuePage = () => {
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+  });
+
+  const handleOnSubmit = handleSubmit(async (data) => {
+    try {
+      setIsSubmitting(true);
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+    } catch (error) {
+      setIsSubmitting(false);
+      // setError("An Unexpected Error occurred.");
+      console.log(error);
+    }
   });
 
   return (
     <div className="max-w-xl">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(async (data) => {
-            try {
-              await axios.post("/api/issues", data);
-              router.push("/issues");
-            } catch (error) {
-              console.log(error);
-              setError("An Unexpected Error occurred.");
-            }
-          })}
-          className="space-y-8"
-        >
+        <form onSubmit={handleOnSubmit} className="space-y-8">
           <FormField
-            control={form.control}
+            control={control}
             name="description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Title" {...form.register("title")} />
+                  <Input placeholder="Title" {...register("title")} />
                 </FormControl>
-                <FormMessage>
-                  {form.formState.errors.title?.message}
-                </FormMessage>
+                <FormMessage>{errors.title?.message}</FormMessage>
                 <FormControl>
                   <Textarea
                     placeholder="Description"
@@ -62,13 +70,13 @@ const NewIssuePage = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage>
-                  {form.formState.errors.description?.message}
-                </FormMessage>
+                <FormMessage>{errors.description?.message}</FormMessage>
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button disabled={isSubmitting} type="submit" className="gap-3">
+            Submit {isSubmitting && <Spinner />}
+          </Button>
         </form>
       </Form>
     </div>
