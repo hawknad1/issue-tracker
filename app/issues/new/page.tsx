@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,10 +16,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import axios from "axios";
-import { useState } from "react";
 import { formSchema } from "@/app/formSchema";
 import Spinner from "@/components/Spinner";
+import axios from "axios";
+import { useState } from "react";
 
 const NewIssuePage = () => {
   // const [error, setError] = useState("");
